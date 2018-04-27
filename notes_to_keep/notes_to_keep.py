@@ -13,8 +13,7 @@ Arguments:
 
 Options:
     --num=<num>       The number of notes to be exported to Google
-                      Keep (default: -1, meaning that all notes
-                      are exported)
+                      Keep (default: all notes will be exported)
     --prefix=<pfx>    Append a prefix before the title of all notes.
                       A pair of [] will be put around it
                       automatically. (Default: empty)

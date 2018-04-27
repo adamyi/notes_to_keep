@@ -77,7 +77,8 @@ def start(gaia, pwd, notes, num, pfx, no_alter, no_label):
                 break
         except Exception as e:
             log.error(e)
-            log.error("Error parsing/updating this note... Skip this note for now. Title: " + note.title)
+            if note.title is not None:
+                log.error("Error parsing/updating this note... Skip this note for now. Title: " + note.title)
             continue
     log.info("Done! Have fun~")
 

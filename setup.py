@@ -12,8 +12,8 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 setup(
     name = 'notes_to_keep',
     version = __version__,
-    description = 'Export all your Apple Notes to Google Keep',
-    long_secription = long_description,
+    description = 'Export all your Apple iCloud Notes to Google Keep',
+    long_decription = long_description,
     long_description_content_type = 'text/markdown',
     url = 'https://github.com/adamyi/notes_to_keep',
     author = 'Adam Yi',
@@ -21,7 +21,7 @@ setup(
     license = 'MIT',
     classifiers = [
         'Development Status :: 3 - Alpha',
-        'Encironment :: Console',
+        'Environment :: Console',
         'License :: OSI Approved :: MIT License',
         'Intended Audience :: End Users/Desktop',
         'Topic :: Utilities',
@@ -32,7 +32,7 @@ setup(
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.6',
     ],
-    keywords = 'apple notes google keep',
+    keywords = 'apple icloud notes google keep',
     entry_points = {
         'console_scripts': ['notes_to_keep = notes_to_keep.notes_to_keep:main']
     },
