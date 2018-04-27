@@ -1,13 +1,49 @@
 # Notes to Keep
 Export all your [Apple Notes](https://www.icloud.com/notes) on macOS to [Google Keep](https://keep.corp.google.com).
 
-## Use
+## Installation
+```
+pip install notes_to_keep
+```
 
+## Usage
+```
+Usage:
+    notes_to_keep <email> <password> [options]
+    notes_to_keep --help
+    notes_to_keep --version
+
+Arguments:
+    <email>           Your Google account
+    <password>        The password of your Google account
+
+Options:
+    --num=<num>       The number of notes to be exported to Google
+                      Keep (default: -1, meaning that all notes
+                      are exported)
+    --prefix=<pfx>    Append a prefix before the title of all notes.
+                      A pair of [] will be put around it
+                      automatically. (Default: empty)
+    --no-time         Do not include creation time of the original
+                      note and its import time to Google Keep. By
+                      default, the creation time and import time is
+                      included as text at the beginning of the note
+                      in Google Keep.
+```
 
 ## License
+Copyright 2018 Adam Yi <i@adamyi.com>
 [MIT License](LICENSE)
 
+## Known Issues
+This is still Alpha-quality, and is likely to have bugs. Use at your own risks. Below are some currently known issues waiting to be fixed:
+
+* It doesn't upload any photos, attachments, etc. to Google Keep. It uploads text, and only text.
+* Might throw an exception if user already has some labels in Google Keep. (See https://github.com/kiwiz/gkeepapi/issues/24 for more info) Current work-around is to remove those labels.
+* It doesn't shorten the title, so in some extreme cases Google back-end might throw a 500. But for most of your notes (almost all), it's gonna be just fine.
+
 ## Contribute
+All submissions, including submissions by project members, require review. We use Github pull requests for this purpose.
 
 ## Disclaimer
 This is not an official Google product. It is neither endorsed nor supported by either Google LLC or Apple Inc.

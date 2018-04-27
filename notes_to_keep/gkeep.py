@@ -22,7 +22,7 @@ def generateBody(note):
     return "Imported from Apple Note\nOriginal Create Time: %s\nImport Time: %s\n-----------------------\n%s\n-----------------------\nhttps://github.com/adamyi/notes_to_keep" % (note.date_created.strftime("%c"), datetime.now().strftime("%c"), parseHTML(note.data))
 
 def uploadNote(keep, note, no_alter, label, pfx):
-    log.info("Parsing note: " + note.title)
+    log.info("Uploading note: " + note.title)
     gnote = g_node.Note()
     if pfx is not None:
         gnote.title = "[%s] %s" % (pfx, note.title)
@@ -38,6 +38,10 @@ def uploadNote(keep, note, no_alter, label, pfx):
     if label is not None:
         gnote.labels.add(label)
     keep.add(gnote)
+    # make things slower to sync everytime instead of sync one time finally
+    # however, syncing one time is more error-prone.
+    # in this way, if a sync has an issue, it only affects one single note.
+    keep.sync()
 
 def createLabel(keep):
     name = "notes_to_keep %s" % datetime.now().strftime("%y/%m/%d %H:%M:%S")
@@ -73,10 +77,8 @@ def start(gaia, pwd, notes, num, pfx, no_alter, no_label):
                 break
         except Exception as e:
             log.error(e)
-            log.error("Error parsing this note... Skip this note for now.")
+            log.error("Error parsing/updating this note... Skip this note for now. Title: " + note.title)
             continue
-    log.info("All notes parsed. Let's commit them!")
-    keep.sync()
     log.info("Done! Have fun~")
 
 if __name__ == '__main__':
