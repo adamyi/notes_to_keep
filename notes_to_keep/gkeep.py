@@ -83,4 +83,4 @@ def start(gaia, pwd, notes, num, pfx, no_alter, no_label):
     log.info("Done! Have fun~")
 
 if __name__ == '__main__':
-    print "This is part of notes_to_keep, which cannot be called separately."
+    print("This is part of notes_to_keep, which cannot be called separately.")

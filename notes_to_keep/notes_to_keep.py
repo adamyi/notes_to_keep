@@ -22,12 +22,15 @@ Options:
                       default, the creation time and import time is
                       included as text at the beginning of the note
                       in Google Keep.
+    --no-label        Do not create a label for all imported notes.
+                      By default, we will create a new label for
+                      all imported notes.
 """
 
 import logging
 from docopt import docopt
-from scan_notes import ScanNotes
-import gkeep
+from .scan_notes import ScanNotes
+from . import gkeep
 from . import __version__
 
 log = logging.getLogger("main")
@@ -40,9 +43,10 @@ def start(args):
     num = args['--num']
     pfx = args['--prefix']
     no_time = args['--no-time']
+    no_label = args['--no-label']
 
     notes = ScanNotes()
-    gkeep.start(gaia, password, notes, num, pfx, no_time, True)
+    gkeep.start(gaia, password, notes, num, pfx, no_time, no_label)
 
 def main():
     args = docopt(__doc__, version=__version__)

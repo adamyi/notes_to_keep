@@ -28,6 +28,9 @@ Options:
                       default, the creation time and import time is
                       included as text at the beginning of the note
                       in Google Keep.
+    --no-label        Do not create a label for all imported notes.
+                      By default, we will create a new label for
+                      all imported notes.
 ```
 
 ## License
@@ -38,8 +41,8 @@ Copyright 2018 Adam Yi <i@adamyi.com>
 ## Known Issues
 This is still Alpha-quality, and is likely to have bugs. Use at your own risks. Below are some currently known issues waiting to be fixed:
 
+* If using Python 3.7, please use `--no-label`, until https://github.com/kiwiz/gkeepapi/pull/50 is merged.
 * It doesn't upload any photos, attachments, etc. to Google Keep. It uploads text, and only text.
-* Might throw an exception if user already has some labels in Google Keep. (See https://github.com/kiwiz/gkeepapi/issues/24 for more info) Current work-around is to remove those labels.
 * It doesn't shorten the title, so in some extreme cases Google back-end might throw a 500 (also 500 for some other situations like certain special characters that Google doesn't support). But for most of your notes (almost all), it's gonna be just fine (2 in my 2000+ notes went wrong).
 
 ## Contribute

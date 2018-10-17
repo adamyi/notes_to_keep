@@ -13,7 +13,7 @@ setup(
     name = 'notes_to_keep',
     version = __version__,
     description = 'Export all your Apple iCloud Notes to Google Keep',
-    long_decription = long_description,
+    long_description = long_description,
     long_description_content_type = 'text/markdown',
     url = 'https://github.com/adamyi/notes_to_keep',
     author = 'Adam Yi',
@@ -38,9 +38,10 @@ setup(
     },
     packages = ['notes_to_keep'],
     install_requires = [
-        'gkeepapi >= 0.10.6',
+        'gkeepapi >= 0.11.2',
         'biplist >= 1.0.3',
         'beautifulsoup4 >= 4.6.0',
-        'docopt >= 0.6.2'
+        'docopt >= 0.6.2',
+        'html5lib >= 1.0.1'
     ],
 )

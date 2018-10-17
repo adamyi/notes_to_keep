@@ -18,4 +18,4 @@ class Note:
         #self.folder_title_modified = folder_title_modified
 
 if __name__ == '__main__':
-    print "This is part of notes_to_keep, which cannot be called separately."
+    print("This is part of notes_to_keep, which cannot be called separately.")

@@ -24,16 +24,23 @@ import binascii
 import sqlite3
 import zlib
 import struct
-from note import Note
+from .note import Note
 import json
+from six import string_types
 
 log = logging.getLogger("scannode")
+
+def ConvertToInt(x):
+    if type(x) == int:
+        return x
+    else:
+        return int(struct.unpack('<B', x)[0])
 
 def ReadMacAbsoluteTime(mac_abs_time): # Mac Absolute time is time epoch beginning 2001/1/1
     '''Returns datetime object, or empty string upon error'''
     if mac_abs_time not in ( 0, None, ''):
         try:
-            if type(mac_abs_time) in (str, unicode):
+            if type(mac_abs_time) in (string_types):
                 mac_abs_time = float(mac_abs_time)
             if mac_abs_time > 0xFFFFFFFF: # more than 32 bits, this should be nane-second resolution timestamp in HighSierra
                 return datetime.datetime.utcfromtimestamp(mac_abs_time / 1000000000 + 978307200)
@@ -100,11 +107,11 @@ def ReadLengthField(blob):
     length = 0
     skip = 0
     try:
-        data_length = int(struct.unpack('<B', blob[0])[0])
+        data_length = ConvertToInt(blob[0])
         length = data_length & 0x7F
         while data_length > 0x7F:
             skip += 1
-            data_length = int(struct.unpack('<B', blob[skip])[0])
+            data_length = ConvertToInt(blob[skip])
             length = ((data_length & 0x7F) << (skip * 7)) + length
     except:
         log.exception('Error trying to read length field in note data blob')    
@@ -117,7 +124,8 @@ def ProcessNoteBodyBlob(blob):
     try:
         pos = 0
         if blob[0:3] != b'\x08\x00\x12': # header
-            log.error('Unexpected bytes in header pos 0 - ' + binascii.hexlify(blob[0:3]) + '  Expected 080012')
+            log.error('Unexpected bytes in header pos 0 - {:x}{:x}{:x}  Expected 080012'.format(
+                ConvertToInt(blob[0]), ConvertToInt(blob[1]), ConvertToInt(blob[2])))
             return ''
         pos += 3
         length, skip = ReadLengthField(blob[pos:])
@@ -131,15 +139,16 @@ def ProcessNoteBodyBlob(blob):
         pos += skip
 
         # Now text data begins
-        if blob[pos] != b'\x1A':
-            log.error('Unexpected byte in text header pos {} - byte is {}'.format(pos, binascii.hexlify(blob[pos])))
+        if blob[pos] != b'\x1A' and blob[pos] != 26:
+            log.error(blob[pos])
+            log.error('Unexpected byte in text header pos {} - byte is {:x}'.format(pos, ConvertToInt(blob[pos])))
             return ''
         pos += 1
         length, skip = ReadLengthField(blob[pos:])
         pos += skip
         # Read text tag next
-        if blob[pos] != b'\x12':
-            log.error('Unexpected byte in pos {} - byte is {}'.format(pos, binascii.hexlify(blob[pos])))
+        if blob[pos] != b'\x12' and blob[pos] != 18:
+            log.error('Unexpected byte in pos {} - byte is {:x}'.format(pos, ConvertToInt(blob[pos])))
             return ''
         pos += 1
         length, skip = ReadLengthField(blob[pos:])
@@ -268,4 +277,4 @@ def ScanNotes():
     return notes
 
 if __name__ == '__main__':
-    print "This is part of notes_to_keep, which cannot be called separately."
+    print("This is part of notes_to_keep, which cannot be called separately.")
