@@ -76,23 +76,23 @@ def GetUncompressedData(compressed):
 def ReadNotesV2_V4_V6(db, notes, version, source):
     '''Reads NotesVx.storedata, where x= 2,4,6,7'''
     try:
+        # " att.ZCONTENTID as att_id, att.ZFILEURL as file_url "
+        # " LEFT JOIN ZATTACHMENT as att ON att.ZNOTE = n.Z_PK "
         query = "SELECT n.Z_PK as note_id, n.ZDATECREATED as created, n.ZDATEEDITED as edited, n.ZTITLE as title, "\
                 " (SELECT ZNAME from ZFOLDER where n.ZFOLDER=ZFOLDER.Z_PK) as folder, "\
                 " (SELECT zf2.ZACCOUNT from ZFOLDER as zf1  LEFT JOIN ZFOLDER as zf2 on (zf1.ZPARENT=zf2.Z_PK) where n.ZFOLDER=zf1.Z_PK) as folder_parent_id, "\
-                " ac.ZEMAILADDRESS as email, ac.ZACCOUNTDESCRIPTION as acc_desc, ac.ZUSERNAME as username, b.ZHTMLSTRING as data, "\
-                " att.ZCONTENTID as att_id, att.ZFILEURL as file_url "\
+                " ac.ZEMAILADDRESS as email, ac.ZACCOUNTDESCRIPTION as acc_desc, ac.ZUSERNAME as username, b.ZHTMLSTRING as data "\
                 " FROM ZNOTE as n "\
                 " LEFT JOIN ZNOTEBODY as b ON b.ZNOTE = n.Z_PK "\
-                " LEFT JOIN ZATTACHMENT as att ON att.ZNOTE = n.Z_PK "\
                 " LEFT JOIN ZACCOUNT as ac ON ac.Z_PK = folder_parent_id"
         db.row_factory = sqlite3.Row
         cursor = db.execute(query)
         for row in cursor:
             try:
-                att_path = ''
-                if row['file_url'] != None:
-                    att_path = ReadAttPathFromPlist(row['file_url'])
-                note = Note(row['note_id'], row['folder'], row['title'], '', row['data'], row['att_id'], att_path,
+                # att_path = ''
+                # if row['file_url'] != None:
+                #     att_path = ReadAttPathFromPlist(row['file_url'])
+                note = Note(row['note_id'], row['folder'], row['title'], '', row['data'], '', '',
                             row['acc_desc'], row['email'], row['username'], 
                             ReadMacAbsoluteTime(row['created']), ReadMacAbsoluteTime(row['edited']),
                             version, source)
@@ -162,9 +162,11 @@ def ProcessNoteBodyBlob(blob):
 def ReadNotesHighSierra(db, notes, source):
     '''Read Notestore.sqlite'''
     try:
+        # " c3.ZFILESIZE, "
+        # " c4.ZFILENAME, c4.ZIDENTIFIER as att_uuid, "
+        # " LEFT JOIN ZICCLOUDSYNCINGOBJECT as c3 ON c3.ZNOTE= n.ZNOTE "
+        # " LEFT JOIN ZICCLOUDSYNCINGOBJECT as c4 ON c4.ZATTACHMENT1= c3.Z_PK "
         query = " SELECT n.Z_PK, n.ZNOTE as note_id, n.ZDATA as data, " \
-                " c3.ZFILESIZE, "\
-                " c4.ZFILENAME, c4.ZIDENTIFIER as att_uuid,  "\
                 " c1.ZTITLE1 as title, c1.ZSNIPPET as snippet, c1.ZIDENTIFIER as noteID, "\
                 " c1.ZCREATIONDATE1 as created, c1.ZLASTVIEWEDMODIFICATIONDATE, c1.ZMODIFICATIONDATE1 as modified, "\
                 " c2.ZACCOUNT3, c2.ZTITLE2 as folderName, c2.ZIDENTIFIER as folderID, "\
@@ -172,20 +174,18 @@ def ReadNotesHighSierra(db, notes, source):
                 " FROM ZICNOTEDATA as n "\
                 " LEFT JOIN ZICCLOUDSYNCINGOBJECT as c1 ON c1.ZNOTEDATA = n.Z_PK  "\
                 " LEFT JOIN ZICCLOUDSYNCINGOBJECT as c2 ON c2.Z_PK = c1.ZFOLDER "\
-                " LEFT JOIN ZICCLOUDSYNCINGOBJECT as c3 ON c3.ZNOTE= n.ZNOTE "\
-                " LEFT JOIN ZICCLOUDSYNCINGOBJECT as c4 ON c4.ZATTACHMENT1= c3.Z_PK "\
                 " LEFT JOIN ZICCLOUDSYNCINGOBJECT as c5 ON c5.Z_PK = c1.ZACCOUNT2  "\
                 " ORDER BY note_id  "
         db.row_factory = sqlite3.Row
         cursor = db.execute(query)
         for row in cursor:
             try:
-                att_path = ''
-                if row['att_uuid'] != None:
-                    att_path = os.getenv("HOME") + '/Library/Group Containers/group.com.apple.notes/Media/' + row['att_uuid'] + '/' + row['ZFILENAME']
+                # att_path = ''
+                # if row['att_uuid'] != None:
+                #     att_path = os.getenv("HOME") + '/Library/Group Containers/group.com.apple.notes/Media/' + row['att_uuid'] + '/' + row['ZFILENAME']
                 data = GetUncompressedData(row['data'])
                 text_content = ProcessNoteBodyBlob(data)
-                note = Note(row['note_id'], row['folderName'], row['title'], row['snippet'], text_content, row['att_uuid'], att_path,
+                note = Note(row['note_id'], row['folderName'], row['title'], row['snippet'], text_content, '', '',
                             row['acc_name'], row['acc_identifier'], '', 
                             ReadMacAbsoluteTime(row['created']), ReadMacAbsoluteTime(row['modified']),
                             'NoteStore', source)
@@ -202,30 +202,30 @@ def ReadNotes(db, notes, source):
         ReadNotesHighSierra(db, notes, source)
         return
     try:
+        # " c3.ZMEDIA as media_id, c3.ZFILESIZE as att_filesize, c3.ZMODIFICATIONDATE as att_modified, c3.ZPREVIEWUPDATEDATE as att_previewed, c3.ZTITLE as att_title, c3.ZTYPEUTI, c3.ZIDENTIFIER as att_uuid, "
+        # " c4.ZFILENAME, c4.ZIDENTIFIER as media_uuid "
+        # " LEFT JOIN ZICCLOUDSYNCINGOBJECT as c3 ON c3.ZNOTE = n.Z_9NOTES "
+        # " LEFT JOIN ZICCLOUDSYNCINGOBJECT as c4 ON c3.ZMEDIA = c4.Z_PK "
         query = " SELECT n.Z_12FOLDERS as folder_id , n.Z_9NOTES as note_id, d.ZDATA as data, " \
                 " c2.ZTITLE2 as folder, c2.ZDATEFORLASTTITLEMODIFICATION as folder_title_modified, " \
                 " c1.ZCREATIONDATE as created, c1.ZMODIFICATIONDATE1 as modified, c1.ZSNIPPET as snippet, c1.ZTITLE1 as title, c1.ZACCOUNT2 as acc_id, " \
                 " c5.ZACCOUNTTYPE as acc_type, c5.ZIDENTIFIER as acc_identifier, c5.ZNAME as acc_name, " \
-                " c3.ZMEDIA as media_id, c3.ZFILESIZE as att_filesize, c3.ZMODIFICATIONDATE as att_modified, c3.ZPREVIEWUPDATEDATE as att_previewed, c3.ZTITLE as att_title, c3.ZTYPEUTI, c3.ZIDENTIFIER as att_uuid, " \
-                " c4.ZFILENAME, c4.ZIDENTIFIER as media_uuid " \
                 " FROM Z_12NOTES as n " \
                 " LEFT JOIN ZICNOTEDATA as d ON d.ZNOTE = n.Z_9NOTES " \
                 " LEFT JOIN ZICCLOUDSYNCINGOBJECT as c1 ON c1.Z_PK = n.Z_9NOTES " \
                 " LEFT JOIN ZICCLOUDSYNCINGOBJECT as c2 ON c2.Z_PK = n.Z_12FOLDERS " \
-                " LEFT JOIN ZICCLOUDSYNCINGOBJECT as c3 ON c3.ZNOTE = n.Z_9NOTES " \
-                " LEFT JOIN ZICCLOUDSYNCINGOBJECT as c4 ON c3.ZMEDIA = c4.Z_PK " \
                 " LEFT JOIN ZICCLOUDSYNCINGOBJECT as c5 ON c5.Z_PK = c1.ZACCOUNT2 " \
                 " ORDER BY note_id "
         db.row_factory = sqlite3.Row
         cursor = db.execute(query)
         for row in cursor:
             try:
-                att_path = ''
-                if row['media_id'] != None:
-                    att_path = row['ZFILENAME']
+                # att_path = ''
+                # if row['media_id'] != None:
+                #     att_path = row['ZFILENAME']
                 data = GetUncompressedData(row['data'])
                 text_content = ProcessNoteBodyBlob(data)
-                note = Note(row['note_id'], row['folder'], row['title'], row['snippet'], text_content, row['att_uuid'], att_path,
+                note = Note(row['note_id'], row['folder'], row['title'], row['snippet'], text_content, '', '',
                             row['acc_name'], row['acc_identifier'], '', 
                             ReadMacAbsoluteTime(row['created']), ReadMacAbsoluteTime(row['modified']),
                             'NoteStore',source)

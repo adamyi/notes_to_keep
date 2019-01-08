@@ -6,8 +6,8 @@ class Note:
         self.title = title
         self.snippet = snippet
         self.data = data
-        self.attachment_id = att_id
-        self.attachment_path = att_path
+        self.attachment_id = att_id # DEPRECATED
+        self.attachment_path = att_path # DEPRECATED
         self.account = acc_desc
         self.account_identifier = acc_identifier
         self.account_username = acc_username
