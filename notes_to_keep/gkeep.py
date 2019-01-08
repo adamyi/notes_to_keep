@@ -6,6 +6,8 @@ from bs4 import BeautifulSoup
 import logging
 import sys
 
+import re; re._pattern_type = re.Pattern
+
 log = logging.getLogger("gkeep")
 
 def login(gaia, pwd):
@@ -21,7 +23,7 @@ def parseHTML(html):
 def generateBody(note):
     return "Imported from Apple Note\nOriginal Create Time: %s\nImport Time: %s\n-----------------------\n%s\n-----------------------\nhttps://github.com/adamyi/notes_to_keep" % (note.date_created.strftime("%c"), datetime.now().strftime("%c"), parseHTML(note.data))
 
-def uploadNote(keep, note, no_alter, label, pfx):
+def uploadNote(keep, note, no_alter, label, pfx, folders):
     log.info("Uploading note: " + note.title)
     gnote = g_node.Note()
     if pfx is not None:
@@ -37,6 +39,11 @@ def uploadNote(keep, note, no_alter, label, pfx):
     # gnote.timestamps = ts
     if label is not None:
         gnote.labels.add(label)
+    if folders:
+        if keep.findLabel(note.folder) is not None:
+            gnote.labels.add(keep.findLabel(note.folder))
+        else:
+            gnote.labels.add(keep.createLabel(note.folder))
     keep.add(gnote)
     # make things slower to sync everytime instead of sync one time finally
     # however, syncing one time is more error-prone.
@@ -49,7 +56,7 @@ def createLabel(keep):
     label = keep.createLabel(name)
     return label
 
-def start(gaia, pwd, notes, num, pfx, no_alter, no_label):
+def start(gaia, pwd, notes, num, pfx, no_alter, no_label, folders):
     log.info("Logging in gaia account...")
     try:
         keep = login(gaia, pwd)
@@ -72,7 +79,7 @@ def start(gaia, pwd, notes, num, pfx, no_alter, no_label):
     for note in notes:
         try:
             i += 1
-            uploadNote(keep, note, no_alter, label, pfx)
+            uploadNote(keep, note, no_alter, label, pfx, folders)
             if i == num:
                 break
         except Exception as e:

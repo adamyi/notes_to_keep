@@ -25,6 +25,8 @@ Options:
     --no-label        Do not create a label for all imported notes.
                       By default, we will create a new label for
                       all imported notes.
+    --folders         Create labels that correspond to the folders
+                      in your Notes db.
 """
 
 import logging
@@ -44,9 +46,10 @@ def start(args):
     pfx = args['--prefix']
     no_time = args['--no-time']
     no_label = args['--no-label']
+    folders = args['--folders']
 
     notes = ScanNotes()
-    gkeep.start(gaia, password, notes, num, pfx, no_time, no_label)
+    gkeep.start(gaia, password, notes, num, pfx, no_time, no_label, folders)
 
 def main():
     args = docopt(__doc__, version=__version__)
