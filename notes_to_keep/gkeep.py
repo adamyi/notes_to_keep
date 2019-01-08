@@ -5,8 +5,13 @@ from gkeepapi.exception import LoginException
 from bs4 import BeautifulSoup
 import logging
 import sys
+import re
 
-import re; re._pattern_type = re.Pattern
+try:
+    re._pattern_type = re.Pattern
+except AttributeError:
+    pass
+
 
 log = logging.getLogger("gkeep")
 
