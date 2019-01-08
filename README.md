@@ -31,6 +31,8 @@ Options:
     --no-label        Do not create a label for all imported notes.
                       By default, we will create a new label for
                       all imported notes.
+    --folders         Create labels that correspond to the folders
+                      in your Notes db.
 ```
 
 ## License
