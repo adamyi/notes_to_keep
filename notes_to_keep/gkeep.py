@@ -28,17 +28,17 @@ def parseHTML(html):
 def generateBody(note):
     return "Imported from Apple Note\nOriginal Create Time: %s\nImport Time: %s\n-----------------------\n%s\n-----------------------\nhttps://github.com/adamyi/notes_to_keep" % (note.date_created.strftime("%c"), datetime.now().strftime("%c"), parseHTML(note.data))
 
-def uploadNote(keep, note, no_alter, label, pfx, folders):
+def uploadNote(keep, note, header, label, pfx, folders):
     log.info("Uploading note: " + note.title)
     gnote = g_node.Note()
     if pfx is not None:
         gnote.title = "[%s] %s" % (pfx, note.title)
     else:
         gnote.title = note.title
-    if no_alter:
-        gnote.text = parseHTML(note.data)
-    else:
+    if header:
         gnote.text = generateBody(note)
+    else:
+        gnote.text = parseHTML(note.data)
     # ts = g_node.NodeTimestamps()
     # ts.load({'created': note.date_created, 'edited': note.date_edited, 'updated': datetime.now()})
     # gnote.timestamps = ts

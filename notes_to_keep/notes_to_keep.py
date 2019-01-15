@@ -17,11 +17,9 @@ Options:
     --prefix=<pfx>    Append a prefix before the title of all notes.
                       A pair of [] will be put around it
                       automatically. (Default: empty)
-    --no-time         Do not include creation time of the original
-                      note and its import time to Google Keep. By
-                      default, the creation time and import time is
-                      included as text at the beginning of the note
-                      in Google Keep.
+    --meta-header     Add a header message to the beginning of each
+                      note to include the original creation time
+                      of the note and the import time.
     --no-label        Do not create a label for all imported notes.
                       By default, we will create a new label for
                       all imported notes.
@@ -44,12 +42,12 @@ def start(args):
     password = args['<password>']
     num = args['--num']
     pfx = args['--prefix']
-    no_time = args['--no-time']
+    header = args['--meta-header']
     no_label = args['--no-label']
     folders = args['--folders']
 
     notes = ScanNotes()
-    gkeep.start(gaia, password, notes, num, pfx, no_time, no_label, folders)
+    gkeep.start(gaia, password, notes, num, pfx, header, no_label, folders)
 
 def main():
     args = docopt(__doc__, version=__version__)
